@@ -1,5 +1,4 @@
 variable "stage" {}
-data "aws_availability_zones" "available" {}
 
 resource "aws_vpc" "qiita_ec2_rds_vpc" {
   cidr_block                       = "10.8.0.0/16"
