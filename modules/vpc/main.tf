@@ -117,3 +117,121 @@ resource "aws_default_network_acl" "qiita_default_acl" {
     Name = "qiita_acl"
   }
 }
+
+resource "aws_security_group" "alb" {
+  name        = "qiita-${var.stage}-alb"
+  description = "security group for ALB"
+  vpc_id      = "${aws_vpc.qiita_vpc.id}"
+  tags        = { 
+    Name = "qiita-${var.stage}-alb" 
+  }
+}
+
+resource "aws_security_group_rule" "alb-ingress-ipv4" {
+  security_group_id = aws_security_group.alb.id
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+}
+
+resource "aws_security_group_rule" "alb-ingress-ipv6" {
+  security_group_id = aws_security_group.alb.id
+  type              = "ingress"
+  ipv6_cidr_blocks  = ["::/0"]
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+}
+
+resource "aws_security_group_rule" "alb-egress-ipv4" {
+  security_group_id = aws_security_group.alb.id
+  type              = "egress"
+  cidr_blocks       = ["0.0.0.0/0"]
+  from_port         = 0
+  to_port           = 0
+  protocol          = "all"
+}
+
+resource "aws_security_group_rule" "alb-egress-ipv6" {
+  security_group_id = aws_security_group.alb.id
+  type              = "egress"
+  ipv6_cidr_blocks  = ["::/0"]
+  from_port         = 0
+  to_port           = 0
+  protocol          = "all"
+}
+
+
+resource "aws_security_group" "ec2" {
+  name        = "qiita-${var.stage}-ec2"
+  description = "security group for EC2"
+  vpc_id      = "${aws_vpc.qiita_vpc.id}"
+  tags        = { 
+    Name = "qiita-${var.stage}-ec2" 
+  }
+}
+
+resource "aws_security_group_rule" "ec2-ingress" {
+  security_group_id        = aws_security_group.ec2.id
+  type                     = "ingress"
+  source_security_group_id = aws_security_group.alb.id
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "all"
+}
+
+resource "aws_security_group_rule" "ec2-egress_ipv4" {
+  security_group_id = aws_security_group.ec2.id
+  type              = "egress"
+  cidr_blocks       = ["0.0.0.0/0"]
+  from_port         = 0
+  to_port           = 0
+  protocol          = "all"
+}
+
+resource "aws_security_group_rule" "ec2-egress_ipv6" {
+  security_group_id = aws_security_group.ec2.id
+  type              = "egress"
+  ipv6_cidr_blocks  = ["::/0"]
+  from_port         = 0
+  to_port           = 0
+  protocol          = "all"
+}
+
+resource "aws_security_group" "rds" {
+  name        = "qiita-${var.stage}-rds"
+  description = "security group for RDS"
+  vpc_id      = "${aws_vpc.qiita_vpc.id}"
+  tags        = { 
+    Name = "qiita-${var.stage}-rds" 
+  }
+}
+
+resource "aws_security_group_rule" "rds-ingress" {
+  security_group_id        = aws_security_group.rds.id
+  type                     = "ingress"
+  source_security_group_id = aws_security_group.ec2.id
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+}
+
+resource "aws_security_group_rule" "rds-egress_ipv4" {
+  security_group_id = aws_security_group.rds.id
+  type              = "egress"
+  cidr_blocks       = ["0.0.0.0/0"]
+  from_port         = 0
+  to_port           = 0
+  protocol          = "all"
+}
+
+resource "aws_security_group_rule" "rds-egress_ipv6" {
+  security_group_id = aws_security_group.rds.id
+  type              = "egress"
+  ipv6_cidr_blocks  = ["::/0"]
+  from_port         = 0
+  to_port           = 0
+  protocol          = "all"
+}
