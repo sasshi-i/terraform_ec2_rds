@@ -74,3 +74,46 @@ resource "aws_route_table_association" "qiita_rtb_assoc_private" {
   subnet_id      = element([aws_subnet.qiita_subnet_1a[1].id, aws_subnet.qiita_subnet_1b[1].id], count.index)
 }
 
+resource "aws_default_network_acl" "qiita_default_acl" {
+  default_network_acl_id = "${aws_vpc.qiita_vpc.default_network_acl_id}"
+
+  egress {
+    protocol   = "all"
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+
+  egress {
+    protocol   = "all"
+    rule_no    = 101
+    action     = "allow"
+    ipv6_cidr_block = "::/0"
+    from_port  = 0
+    to_port    = 0
+  }
+
+  ingress {
+    protocol   = "all"
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+
+  ingress {
+    protocol   = "all"
+    rule_no    = 101
+    action     = "allow"
+    ipv6_cidr_block = "::/0"
+    from_port  = 0
+    to_port    = 0
+  }
+
+  tags = {
+    Name = "qiita_acl"
+  }
+}
