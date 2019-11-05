@@ -48,7 +48,7 @@ resource "aws_route_table" "qiita_rtb_public" {
   }
 }
 
-resource "aws_route_table_association" "qiita_rtb_assoc_pblic" {
+resource "aws_route_table_association" "qiita_rtb_assoc_public" {
   count          = 2
   route_table_id = aws_route_table.qiita_rtb_public.id
   subnet_id      = element([aws_subnet.qiita_subnet_1a[0].id, aws_subnet.qiita_subnet_1b[0].id], count.index)
